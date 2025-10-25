@@ -11,7 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import uk.ac.tees.mad.moodify.ui.theme.MoodifyTheme
+import uk.ac.tees.mad.moodify.ui.theme.SplashScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,28 +24,25 @@ class MainActivity : ComponentActivity() {
         setContent {
             MoodifyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Moodify()
                 }
             }
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+sealed class MoodifyNavigation(val destination : String){
+    object Splash : MoodifyNavigation("splash")
+    object Home : MoodifyNavigation("home")
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    MoodifyTheme {
-        Greeting("Android")
+fun Moodify(){
+    val navController = rememberNavController()
+
+    NavHost(navController, startDestination = MoodifyNavigation.Splash.destination) {
+        composable(MoodifyNavigation.Splash.destination) {
+            SplashScreen(navController)
+        }
     }
 }
