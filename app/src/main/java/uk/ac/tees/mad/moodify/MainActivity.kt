@@ -5,17 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import uk.ac.tees.mad.moodify.ui.auth.AuthScreen
 import uk.ac.tees.mad.moodify.ui.theme.MoodifyTheme
-import uk.ac.tees.mad.moodify.ui.theme.SplashScreen
+import uk.ac.tees.mad.moodify.ui.splash.SplashScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +31,7 @@ class MainActivity : ComponentActivity() {
 
 sealed class MoodifyNavigation(val destination : String){
     object Splash : MoodifyNavigation("splash")
+    object Auth : MoodifyNavigation("auth")
     object Home : MoodifyNavigation("home")
 }
 
@@ -43,6 +42,9 @@ fun Moodify(){
     NavHost(navController, startDestination = MoodifyNavigation.Splash.destination) {
         composable(MoodifyNavigation.Splash.destination) {
             SplashScreen(navController)
+        }
+        composable(MoodifyNavigation.Auth.destination) {
+             AuthScreen()
         }
     }
 }
