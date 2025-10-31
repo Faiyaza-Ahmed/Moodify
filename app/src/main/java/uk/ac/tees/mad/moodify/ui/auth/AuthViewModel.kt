@@ -2,10 +2,15 @@ package uk.ac.tees.mad.moodify.ui.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+
+) : ViewModel() {
 
     // Example fake loading to simulate API call
     fun login(email: String, password: String, onResult: (Result<Unit>) -> Unit) {

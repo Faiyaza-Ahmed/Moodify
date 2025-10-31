@@ -8,15 +8,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import uk.ac.tees.mad.moodify.ui.auth.AuthScreen
 import uk.ac.tees.mad.moodify.ui.auth.AuthViewModel
 import uk.ac.tees.mad.moodify.ui.theme.MoodifyTheme
 import uk.ac.tees.mad.moodify.ui.splash.SplashScreen
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,25 +42,25 @@ sealed class MoodifyNavigation(val destination : String){
 @Composable
 fun Moodify(){
     val navController = rememberNavController()
+    val authViewModel: AuthViewModel = hiltViewModel()
 
     NavHost(navController, startDestination = MoodifyNavigation.Splash.destination) {
         composable(MoodifyNavigation.Splash.destination) {
             SplashScreen(navController)
         }
         composable(MoodifyNavigation.Auth.destination) {
-            val viewModel: AuthViewModel = viewModel()
 
             AuthScreen(
                 onLogin = { email, password ->
                     kotlinx.coroutines.suspendCancellableCoroutine<Result<Unit>> { cont ->
-                        viewModel.login(email, password) {
+                        authViewModel.login(email, password) {
                             cont.resume(it, null)
                         }
                     }
                 },
                 onSignup = { first, last, email, password ->
                     kotlinx.coroutines.suspendCancellableCoroutine<Result<Unit>> { cont ->
-                        viewModel.signup(first, last, email, password) {
+                        authViewModel.signup(first, last, email, password) {
                             cont.resume(it, null)
                         }
                     }
