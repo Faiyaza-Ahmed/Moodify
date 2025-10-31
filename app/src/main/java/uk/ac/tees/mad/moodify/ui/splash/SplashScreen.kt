@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
+import uk.ac.tees.mad.moodify.MoodifyNavigation
 import uk.ac.tees.mad.moodify.R
 import uk.ac.tees.mad.moodify.ui.theme.PurplePrimary
 import uk.ac.tees.mad.moodify.ui.theme.TextSecondary
@@ -31,7 +32,7 @@ fun SplashScreen(navController: NavController) {
             animationSpec = tween(durationMillis = 1000)
         )
         delay(1500)
-        navController.navigate("home") {
+        navController.navigate( MoodifyNavigation.Auth.destination) {
             popUpTo("splash") { inclusive = true }
         }
     }
@@ -47,7 +48,6 @@ fun SplashScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
 
-            // App Icon
             Image(
                 painter = painterResource(id = R.drawable.moodify), 
                 contentDescription = "Moodify Logo",
@@ -58,7 +58,6 @@ fun SplashScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // App Name
             Text(
                 text = "Moodify",
                 fontSize = 32.sp,
@@ -66,7 +65,6 @@ fun SplashScreen(navController: NavController) {
                 color = PurplePrimary
             )
 
-            // Tagline
             Text(
                 text = "Track Feelings. Find Balance.",
                 fontSize = 16.sp,

@@ -47,14 +47,12 @@ fun AuthScreen(
     onSignup: suspend (firstName: String, lastName: String, email: String, password: String) -> Result<Unit>,
     onAuthSuccess: (() -> Unit)? = null
 ) {
-    // Pager state
     val pagerState = rememberPagerState(pageCount = {
         2
     }, initialPage = 0)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Background gradient using your palette
     val bgBrush = Brush.verticalGradient(
         colors = listOf(GradientStart, GradientEnd)
     )
@@ -71,7 +69,6 @@ fun AuthScreen(
                 .padding(top = 36.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top App Title / small logo area
             Text(
                 text = "Moodify",
                 style = MaterialTheme.typography.headlineMedium.copy(fontSize = 30.sp),
@@ -80,7 +77,6 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Segmented control
             AuthSegmentedControl(
                 selectedIndex = pagerState.currentPage,
                 onSelectIndex = { index ->
@@ -90,7 +86,6 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            // Card container for forms
             Surface(
                 tonalElevation = 6.dp,
                 shape = RoundedCornerShape(20.dp),
@@ -104,7 +99,6 @@ fun AuthScreen(
                         .fillMaxSize()
                         .padding(20.dp)
                 ) {
-                    // Pager: Login & Signup pages
                     HorizontalPager(
                         state = pagerState,
                         modifier = Modifier.fillMaxSize()
@@ -127,7 +121,6 @@ fun AuthScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Small "privacy note" or help text
             Text(
                 text = "We securely store your moods. You can logout anytime.",
                 style = MaterialTheme.typography.bodySmall,
@@ -135,7 +128,6 @@ fun AuthScreen(
             )
         }
 
-        // Snackbar Host
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
@@ -174,7 +166,6 @@ private fun AuthSegmentedControl(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.padding(4.dp)
         ) {
-            // Login Button
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -191,7 +182,6 @@ private fun AuthSegmentedControl(
                 )
             }
 
-            // Signup Button
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -252,7 +242,6 @@ private fun LoginPage(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // Email
         RoundedTextField(
             value = email,
             onValueChange = { email = it },
@@ -266,7 +255,6 @@ private fun LoginPage(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Password
         RoundedTextField(
             value = password,
             onValueChange = { password = it },
@@ -290,7 +278,6 @@ private fun LoginPage(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // Login button
         FilledRoundedButton(
             text = if (!loading) "Log In" else "Signing in...",
             enabled = !loading,
@@ -309,7 +296,6 @@ private fun LoginPage(
                     return@FilledRoundedButton
                 }
 
-                // perform login (call suspend lambda)
                 scope.launch {
                     loading = true
                     val result = onLogin(email.trim(), password)
@@ -326,7 +312,6 @@ private fun LoginPage(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Forgot password / alternative area (space utilized)
         TextButton(
             onClick = { /* TODO: navigate to Forgot password */ },
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -381,7 +366,6 @@ private fun SignupPage(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // First Row: First name & Last name side by side
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             RoundedTextField(
                 value = firstName,
@@ -408,7 +392,6 @@ private fun SignupPage(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Email
         RoundedTextField(
             value = email,
             onValueChange = { email = it },
@@ -422,7 +405,6 @@ private fun SignupPage(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Password
         RoundedTextField(
             value = password,
             onValueChange = { password = it },
@@ -446,7 +428,6 @@ private fun SignupPage(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Confirm Password
         RoundedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
@@ -474,7 +455,6 @@ private fun SignupPage(
             text = if (!loading) "Create Account" else "Creating...",
             enabled = !loading,
             onClick = {
-                // client-side validation
                 val validationError = when {
                     firstName.isBlank() -> "Enter first name."
                     lastName.isBlank() -> "Enter last name."
@@ -491,7 +471,6 @@ private fun SignupPage(
                     return@FilledRoundedButton
                 }
 
-                // Call signup
                 scope.launch {
                     loading = true
                     val result = onSignup(firstName.trim(), lastName.trim(), email.trim(), password)
@@ -549,7 +528,8 @@ private fun RoundedTextField(
             unfocusedBorderColor = PurplePrimary.copy(alpha = 0.18f),
             focusedLabelColor = PurplePrimary,
             cursorColor = PurplePrimary,
-            containerColor = LavenderMist
+            focusedContainerColor = LavenderMist,
+            unfocusedContainerColor = LavenderMist
         ),
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,

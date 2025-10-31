@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import uk.ac.tees.mad.moodify.ui.auth.AuthScreen
+import uk.ac.tees.mad.moodify.ui.auth.AuthViewModel
 import uk.ac.tees.mad.moodify.ui.theme.MoodifyTheme
 import uk.ac.tees.mad.moodify.ui.splash.SplashScreen
 
@@ -44,7 +46,30 @@ fun Moodify(){
             SplashScreen(navController)
         }
         composable(MoodifyNavigation.Auth.destination) {
-             AuthScreen()
+            val viewModel: AuthViewModel = viewModel()
+
+            AuthScreen(
+                onLogin = { email, password ->
+                    kotlinx.coroutines.suspendCancellableCoroutine<Result<Unit>> { cont ->
+                        viewModel.login(email, password) {
+                            cont.resume(it, null)
+                        }
+                    }
+                },
+                onSignup = { first, last, email, password ->
+                    kotlinx.coroutines.suspendCancellableCoroutine<Result<Unit>> { cont ->
+                        viewModel.signup(first, last, email, password) {
+                            cont.resume(it, null)
+                        }
+                    }
+                },
+                onAuthSuccess = {
+                    // navigate to home screen on success
+                    // navController.navigate(MoodifyNavigation.Home.destination) {
+                    //     popUpTo(MoodifyNavigation.Auth.destination) { inclusive = true }
+                    // }
+                }
+            )
         }
     }
 }
