@@ -21,18 +21,17 @@ import uk.ac.tees.mad.moodify.ui.theme.PurplePrimary
 import uk.ac.tees.mad.moodify.ui.theme.TextSecondary
 
 @Composable
-fun SplashScreen(navController: NavController) {
+fun SplashScreen(navController: NavController, startDestination: String) {
 
     val scale = remember { Animatable(0f) }
 
-    // Animation effect when splash launches
     LaunchedEffect(key1 = true) {
         scale.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = 1000)
         )
         delay(1500)
-        navController.navigate( MoodifyNavigation.Auth.destination) {
+        navController.navigate( startDestination) {
             popUpTo("splash") { inclusive = true }
         }
     }

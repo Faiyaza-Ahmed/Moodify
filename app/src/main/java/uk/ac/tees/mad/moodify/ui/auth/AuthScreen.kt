@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.moodify.ui.auth
 
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
@@ -33,7 +34,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import uk.ac.tees.mad.moodify.MoodifyNavigation
 import uk.ac.tees.mad.moodify.ui.theme.*
 
 // --- Public API: call this composable where you need Auth UI ---
@@ -43,9 +46,8 @@ import uk.ac.tees.mad.moodify.ui.theme.*
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
-    onLogin: suspend (email: String, password: String) -> Result<Unit>,
-    onSignup: suspend (firstName: String, lastName: String, email: String, password: String) -> Result<Unit>,
-    onAuthSuccess: (() -> Unit)? = null
+    viewModel: AuthViewModel,
+    navController: NavController
 ) {
     val pagerState = rememberPagerState(pageCount = {
         2
@@ -105,14 +107,22 @@ fun AuthScreen(
                     ) { page ->
                         when (page) {
                             0 -> LoginPage(
-                                onLogin = onLogin,
-                                onSuccess = { onAuthSuccess?.invoke() },
-                                snackbarHostState = snackbarHostState
+                                viewModel = viewModel,
+                                snackbarHostState = snackbarHostState,
+                                onSuccess = {
+                                    navController.navigate(MoodifyNavigation.Home.destination){
+                                        popUpTo(MoodifyNavigation.Auth.destination) { inclusive = true }
+                                    }
+                                }
                             )
                             1 -> SignupPage(
-                                onSignup = onSignup,
-                                onSuccess = { onAuthSuccess?.invoke() },
-                                snackbarHostState = snackbarHostState
+                                viewModel = viewModel,
+                                snackbarHostState = snackbarHostState,
+                                onSuccess = {
+                                    navController.navigate(MoodifyNavigation.Home.destination){
+                                        popUpTo(MoodifyNavigation.Auth.destination) { inclusive = true }
+                                    }
+                                }
                             )
                         }
                     }
@@ -140,7 +150,7 @@ fun AuthScreen(
 @Composable
 private fun AuthSegmentedControl(
     selectedIndex: Int,
-    onSelectIndex: (Int) -> Unit
+    onSelectIndex: (Int) -> Unit,
 ) {
     val isLoginSelected = selectedIndex == 0
     val loginBg by animateColorAsState(
@@ -206,9 +216,9 @@ private fun AuthSegmentedControl(
    --------------------------- */
 @Composable
 private fun LoginPage(
-    onLogin: suspend (email: String, password: String) -> Result<Unit>,
-    onSuccess: () -> Unit,
-    snackbarHostState: SnackbarHostState
+    viewModel: AuthViewModel,
+    snackbarHostState: SnackbarHostState,
+    onSuccess: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     var email by remember { mutableStateOf("") }
@@ -282,7 +292,6 @@ private fun LoginPage(
             text = if (!loading) "Log In" else "Signing in...",
             enabled = !loading,
             onClick = {
-                // basic validation
                 val validationError = when {
                     email.isBlank() -> "Please enter your email."
                     !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Please enter a valid email."
@@ -298,14 +307,15 @@ private fun LoginPage(
 
                 scope.launch {
                     loading = true
-                    val result = onLogin(email.trim(), password)
-                    loading = false
-                    if (result.isSuccess) {
+                    viewModel.login(email.trim(), password, onSuccess = {
+                        loading = false
                         onSuccess()
-                    } else {
-                        val message = result.exceptionOrNull()?.localizedMessage ?: "Login failed."
-                        snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short)
-                    }
+                    }, onFailure = {
+                        loading = false
+                        scope.launch {
+                            snackbarHostState.showSnackbar(it.localizedMessage, duration = SnackbarDuration.Short)
+                        }
+                    })
                 }
             }
         )
@@ -326,9 +336,9 @@ private fun LoginPage(
    --------------------------- */
 @Composable
 private fun SignupPage(
-    onSignup: suspend (firstName: String, lastName: String, email: String, password: String) -> Result<Unit>,
-    onSuccess: () -> Unit,
-    snackbarHostState: SnackbarHostState
+    viewModel: AuthViewModel,
+    snackbarHostState: SnackbarHostState,
+    onSuccess: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     var firstName by remember { mutableStateOf("") }
@@ -473,14 +483,21 @@ private fun SignupPage(
 
                 scope.launch {
                     loading = true
-                    val result = onSignup(firstName.trim(), lastName.trim(), email.trim(), password)
-                    loading = false
-                    if (result.isSuccess) {
-                        onSuccess()
-                    } else {
-                        val message = result.exceptionOrNull()?.localizedMessage ?: "Signup failed."
-                        snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short)
-                    }
+                    viewModel.signup(
+                        firstName = firstName,
+                        lastName = lastName,
+                        email = email,
+                        password = password,
+                        onSuccess = {
+                            loading = false
+                            onSuccess()
+                        },onFailure = {
+                            loading = false
+                            scope.launch {
+                                snackbarHostState.showSnackbar(it.localizedMessage, duration = SnackbarDuration.Short)
+                            }
+                        }
+                    )
                 }
             }
         )

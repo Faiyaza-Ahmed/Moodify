@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import uk.ac.tees.mad.moodify.ui.auth.AuthScreen
 import uk.ac.tees.mad.moodify.ui.auth.AuthViewModel
+import uk.ac.tees.mad.moodify.ui.home.HomeScreen
 import uk.ac.tees.mad.moodify.ui.theme.MoodifyTheme
 import uk.ac.tees.mad.moodify.ui.splash.SplashScreen
 
@@ -40,38 +41,31 @@ sealed class MoodifyNavigation(val destination : String){
 }
 
 @Composable
-fun Moodify(){
+fun Moodify() {
     val navController = rememberNavController()
-    val authViewModel: AuthViewModel = hiltViewModel()
+    val viewModel: AuthViewModel = hiltViewModel()
+    val startDestination = if (viewModel.isUserLoggedIn.value) {
+        MoodifyNavigation.Home.destination
+    } else {
+        MoodifyNavigation.Auth.destination
+    }
 
-    NavHost(navController, startDestination = MoodifyNavigation.Splash.destination) {
+    NavHost(navController = navController, startDestination = MoodifyNavigation.Splash.destination) {
         composable(MoodifyNavigation.Splash.destination) {
-            SplashScreen(navController)
+            SplashScreen(navController, startDestination)
         }
         composable(MoodifyNavigation.Auth.destination) {
-
             AuthScreen(
-                onLogin = { email, password ->
-                    kotlinx.coroutines.suspendCancellableCoroutine<Result<Unit>> { cont ->
-                        authViewModel.login(email, password) {
-                            cont.resume(it, null)
-                        }
-                    }
-                },
-                onSignup = { first, last, email, password ->
-                    kotlinx.coroutines.suspendCancellableCoroutine<Result<Unit>> { cont ->
-                        authViewModel.signup(first, last, email, password) {
-                            cont.resume(it, null)
-                        }
-                    }
-                },
-                onAuthSuccess = {
-                    // navigate to home screen on success
-                    // navController.navigate(MoodifyNavigation.Home.destination) {
-                    //     popUpTo(MoodifyNavigation.Auth.destination) { inclusive = true }
-                    // }
-                }
+                viewModel = viewModel,
+                navController = navController
             )
+        }
+        composable(MoodifyNavigation.Home.destination) {
+            // Uncomment and implement HomeScreen as needed
+
+            HomeScreen(
+            )
+
         }
     }
 }

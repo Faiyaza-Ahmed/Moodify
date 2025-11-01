@@ -1,52 +1,81 @@
 package uk.ac.tees.mad.moodify.ui.auth
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-
+    private val auth: FirebaseAuth,
+    private val firestore: FirebaseFirestore
 ) : ViewModel() {
 
-    // Example fake loading to simulate API call
-    fun login(email: String, password: String, onResult: (Result<Unit>) -> Unit) {
-        viewModelScope.launch {
-            // TODO: Replace with Firebase Auth login
-            // FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-            //     .addOnCompleteListener { task ->
-            //         if (task.isSuccessful) onResult(Result.success(Unit))
-            //         else onResult(Result.failure(task.exception ?: Exception("Login failed")))
-            //     }
+    val isUserLoggedIn = mutableStateOf(auth.currentUser != null)
 
-            // temporary mock delay to simulate network
-            delay(1000)
-            if (email == "test@gmail.com" && password == "123456") {
-                onResult(Result.success(Unit))
-            } else {
-                onResult(Result.failure(Exception("Invalid credentials")))
-            }
+    fun login(email: String, password: String, onSuccess : () -> Unit, onFailure : (Exception) -> Unit) {
+        viewModelScope.launch {
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        isUserLoggedIn.value = true
+                        onSuccess()
+                    } else {
+                        val exception = task.exception ?: Exception("Login failed")
+                        onFailure(exception)
+                    }
+                }
         }
     }
 
-    fun signup(firstName: String, lastName: String, email: String, password: String, onResult: (Result<Unit>) -> Unit) {
+    fun signup(
+        firstName: String,
+        lastName: String,
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
         viewModelScope.launch {
-            // TODO: Replace with Firebase Auth signup
-            // FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
-            //     .addOnCompleteListener { task ->
-            //         if (task.isSuccessful) {
-            //             // Optionally save name in Firestore
-            //             onResult(Result.success(Unit))
-            //         } else {
-            //             onResult(Result.failure(task.exception ?: Exception("Signup failed")))
-            //         }
-            //     }
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val userId = auth.currentUser?.uid
+                        val userData = hashMapOf(
+                            "firstName" to firstName,
+                            "lastName" to lastName,
+                            "email" to email,
+                            "createdAt" to System.currentTimeMillis()
+                        )
 
-            delay(1000)
-            onResult(Result.success(Unit)) // fake success for now
+                        if (userId != null) {
+                            firestore.collection("users")
+                                .document(userId)
+                                .set(userData)
+                                .addOnSuccessListener {
+                                    isUserLoggedIn.value = true
+                                    onSuccess()
+                                }
+                                .addOnFailureListener { e ->
+                                    onFailure(e)
+                                }
+                        } else {
+                            onFailure(Exception("User ID is null"))
+                        }
+                    } else {
+                        val exception = task.exception ?: Exception("Signup failed")
+                        onFailure(exception)
+                    }
+                }
         }
+    }
+
+    fun logout() {
+        auth.signOut()
+        isUserLoggedIn.value = false
     }
 }
