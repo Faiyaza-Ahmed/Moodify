@@ -39,9 +39,7 @@ import kotlinx.coroutines.launch
 import uk.ac.tees.mad.moodify.MoodifyNavigation
 import uk.ac.tees.mad.moodify.ui.theme.*
 
-// --- Public API: call this composable where you need Auth UI ---
-// onLogin(email, password) -> called when user taps Login
-// onSignup(firstName, lastName, email, password) -> called when user taps Signup
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthScreen(

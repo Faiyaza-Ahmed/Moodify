@@ -61,9 +61,13 @@ fun Moodify() {
             )
         }
         composable(MoodifyNavigation.Home.destination) {
-            // Uncomment and implement HomeScreen as needed
-
             HomeScreen(
+                onNavigateToHistory = {
+
+                },
+                onNavigateToProfile = {
+
+                }
             )
 
         }
