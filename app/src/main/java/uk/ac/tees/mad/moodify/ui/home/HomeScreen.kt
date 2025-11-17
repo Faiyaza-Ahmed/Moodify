@@ -40,7 +40,6 @@ fun HomeScreen(
     var isLoading by remember { mutableStateOf(false) }
     var detectedMood by remember { mutableStateOf<String?>(null) }
 
-    // Microphone permission
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted ->
