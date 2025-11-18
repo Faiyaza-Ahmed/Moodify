@@ -1,6 +1,9 @@
 package uk.ac.tees.mad.moodify.ui.home
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,10 +43,33 @@ fun HomeScreen(
     var isLoading by remember { mutableStateOf(false) }
     var detectedMood by remember { mutableStateOf<String?>(null) }
 
+    val speechLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val spokenText =
+                result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
+            spokenText?.let {
+                journalText = journalText + if (journalText.isNotEmpty()) " $it" else it
+            }
+        }
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted ->
-            if (!granted) Toast.makeText(context, "Microphone permission required.", Toast.LENGTH_SHORT).show()
+            if (granted) {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                    )
+                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak your mood...")
+                }
+                speechLauncher.launch(intent)
+            } else {
+                Toast.makeText(context, "Microphone permission required", Toast.LENGTH_SHORT).show()
+            }
         }
     )
 
@@ -114,7 +140,6 @@ fun HomeScreen(
                 ElevatedButton(
                     onClick = {
                         permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                        // TODO: Implement voice recording + convert to text
                     },
                     shape = RoundedCornerShape(25.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = CoralAccent)
@@ -211,3 +236,5 @@ fun MoodResultCard(mood: String) {
         }
     }
 }
+
+
