@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import uk.ac.tees.mad.moodify.ui.auth.AuthScreen
 import uk.ac.tees.mad.moodify.ui.auth.AuthViewModel
 import uk.ac.tees.mad.moodify.ui.home.HomeScreen
+import uk.ac.tees.mad.moodify.ui.result.ResultScreen
 import uk.ac.tees.mad.moodify.ui.theme.MoodifyTheme
 import uk.ac.tees.mad.moodify.ui.splash.SplashScreen
 
@@ -38,6 +39,9 @@ sealed class MoodifyNavigation(val destination : String){
     object Splash : MoodifyNavigation("splash")
     object Auth : MoodifyNavigation("auth")
     object Home : MoodifyNavigation("home")
+    object Result : MoodifyNavigation("result/{mood}"){
+        fun createRoute(mood: String) = "result/$mood"
+    }
 }
 
 @Composable
@@ -62,6 +66,7 @@ fun Moodify() {
         }
         composable(MoodifyNavigation.Home.destination) {
             HomeScreen(
+                navController = navController,
                 onNavigateToHistory = {
 
                 },
@@ -69,7 +74,10 @@ fun Moodify() {
 
                 }
             )
-
+        }
+        composable(MoodifyNavigation.Result.destination) { backStackEntry ->
+            val mood = backStackEntry.arguments?.getString("mood")
+            ResultScreen(mood = mood)
         }
     }
 }
