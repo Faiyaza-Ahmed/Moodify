@@ -77,7 +77,11 @@ fun Moodify() {
         }
         composable(MoodifyNavigation.Result.destination) { backStackEntry ->
             val mood = backStackEntry.arguments?.getString("mood")
-            ResultScreen(mood = mood)
+            if (mood != null) {
+                ResultScreen(mood = mood!!) {
+
+                }
+            }
         }
     }
 }
