@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import uk.ac.tees.mad.moodify.data.remote.SpotifyApi
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
@@ -18,7 +19,8 @@ import java.util.*
 @HiltViewModel
 class ResultViewModel @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val spotifyApi: SpotifyApi
 ) : ViewModel() {
 
     suspend fun fetchSpotifyPlaylist(mood: String): String = withContext(Dispatchers.IO) {
@@ -30,20 +32,8 @@ class ResultViewModel @Inject constructor(
                 else -> "relaxation"
             }
 
-            val url = URL("https://api.spotify.com/v1/search?q=$query&type=playlist&limit=1")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.setRequestProperty("Authorization", "Bearer YOUR_SPOTIFY_ACCESS_TOKEN")
-
-            val response = connection.inputStream.bufferedReader().readText()
-            val playlist = JSONObject(response)
-                .getJSONObject("playlists")
-                .getJSONArray("items")
-                .getJSONObject(0)
-                .getString("external_urls")
-            val spotifyUrl = JSONObject(playlist).getString("spotify")
-
-            spotifyUrl
+            val response = spotifyApi.searchPlaylists(query = query)
+            response.playlists.items[0].external_urls.spotify
         } catch (e: Exception) {
             e.printStackTrace()
             "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"

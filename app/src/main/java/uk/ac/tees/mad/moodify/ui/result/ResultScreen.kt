@@ -1,3 +1,6 @@
+// The ResultScreen.kt remains unchanged, as the ViewModel API is the same.
+// For completeness, here it is again:
+
 package uk.ac.tees.mad.moodify.ui.result
 
 import android.content.Intent
