@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.moodify.ui.result
 
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -24,21 +25,36 @@ class ResultViewModel @Inject constructor(
 ) : ViewModel() {
 
     suspend fun fetchSpotifyPlaylist(mood: String): String = withContext(Dispatchers.IO) {
-        try {
-            val query = when (mood.lowercase()) {
-                "positive" -> "happy mood"
-                "negative" -> "calm meditation"
-                "neutral" -> "focus work"
-                else -> "relaxation"
+        return@withContext try {
+            when (mood.lowercase()) {
+                "positive" -> {
+                    // 🎶 Uplifting / Happy Vibes
+                    "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"
+                }
+                "negative" -> {
+                    // 🧘 Calm / Healing / Chill Music
+                    "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"
+                }
+                "neutral" -> {
+                    // 🎧 Focus / Productivity Music
+                    "https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO"
+                }
+                "angry" -> {
+                    // 🤘 Energy Release Playlist
+                    "https://open.spotify.com/playlist/37i9dQZF1DWZIOAPKUdaKS"
+                }
+                else -> {
+                    // 🌙 Default Relaxation Playlist
+                    "https://open.spotify.com/playlist/37i9dQZF1DWU0ScTcjJBdj"
+                }
             }
-
-            val response = spotifyApi.searchPlaylists(query = query)
-            response.playlists.items[0].external_urls.spotify
         } catch (e: Exception) {
             e.printStackTrace()
+            // fallback safety link if something unexpected happens
             "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"
         }
     }
+
 
     fun suggestActivity(mood: String): String {
         return when (mood.lowercase()) {
