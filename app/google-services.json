@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "456542093225",
-    "project_id": "moodify-c1073",
-    "storage_bucket": "moodify-c1073.firebasestorage.app"
+    "project_number": "408867756522",
+    "project_id": "moodify-6986f",
+    "storage_bucket": "moodify-6986f.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:456542093225:android:f4b3e456ab388d43710eb8",
+        "mobilesdk_app_id": "1:408867756522:android:fdfd1f015e9ba55d27fa93",
         "android_client_info": {
           "package_name": "uk.ac.tees.mad.moodify"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAS4eVpXNuDys_cB-E77hTH9N0yPuY1JPQ"
+          "current_key": "AIzaSyDmvpEOgQVu8Iv6snOVb1ZU6jPLOG0Ht_0"
         }
       ],
       "services": {

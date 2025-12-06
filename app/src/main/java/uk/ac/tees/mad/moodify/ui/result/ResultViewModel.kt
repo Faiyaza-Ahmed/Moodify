@@ -28,29 +28,23 @@ class ResultViewModel @Inject constructor(
         return@withContext try {
             when (mood.lowercase()) {
                 "positive" -> {
-                    // 🎶 Uplifting / Happy Vibes
                     "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC"
                 }
                 "negative" -> {
-                    // 🧘 Calm / Healing / Chill Music
                     "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"
                 }
                 "neutral" -> {
-                    // 🎧 Focus / Productivity Music
                     "https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO"
                 }
                 "angry" -> {
-                    // 🤘 Energy Release Playlist
                     "https://open.spotify.com/playlist/37i9dQZF1DWZIOAPKUdaKS"
                 }
                 else -> {
-                    // 🌙 Default Relaxation Playlist
                     "https://open.spotify.com/playlist/37i9dQZF1DWU0ScTcjJBdj"
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            // fallback safety link if something unexpected happens
             "https://open.spotify.com/playlist/37i9dQZF1DX3rxVfibe1L0"
         }
     }
@@ -74,7 +68,15 @@ class ResultViewModel @Inject constructor(
         )
 
         viewModelScope.launch(Dispatchers.IO) {
-            firestore.collection("mood_entries").add(entry)
+            firestore.collection("users").document(userId)
+                .collection("moodEntries")
+                .add(entry)
+                .addOnSuccessListener {
+                    Log.d("ResultViewModel", "Mood entry saved successfully")
+                }
+                .addOnFailureListener { e ->
+                    Log.e("ResultViewModel", "Error saving mood entry", e)
+                }
         }
     }
 }

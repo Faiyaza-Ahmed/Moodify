@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -190,6 +191,62 @@ fun ResultScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Mood Result – Positive Mood")
+@Composable
+fun ResultScreenPreview_Positive() {
+    ResultScreen(
+        mood = "positive",
+        onBackToHome = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Mood Result – Negative Mood")
+@Composable
+fun ResultScreenPreview_Negative() {
+    ResultScreen(
+        mood = "negative",
+        onBackToHome = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Mood Result – Neutral Mood")
+@Composable
+fun ResultScreenPreview_Neutral() {
+    ResultScreen(
+        mood = "neutral",
+        onBackToHome = {}
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "Mood Result – Loading State")
+@Composable
+fun ResultScreenPreview_Loading() {
+    val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(true) }
+
+    Scaffold(
+        containerColor = LavenderMist,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Your Mood Result", color = TextPrimary, fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(Brush.verticalGradient(listOf(GradientStart, GradientEnd)))
+                .padding(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color.White)
         }
     }
 }

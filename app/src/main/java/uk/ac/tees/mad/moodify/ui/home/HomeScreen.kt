@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -214,3 +215,116 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "Home Screen - Initial State")
+@Composable
+fun HomeScreenPreview() {
+    var journalText by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var detectedMood by remember { mutableStateOf<String?>(null) }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Moodify", fontWeight = FontWeight.Bold, fontSize = 22.sp) },
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Default.Settings, contentDescription = "Profile")
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
+            )
+        },
+        containerColor = LavenderMist
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(Brush.verticalGradient(listOf(GradientStart, GradientEnd)))
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("How are you feeling today?", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = Color.White)
+            Spacer(Modifier.height(20.dp))
+
+            OutlinedTextField(
+                value = journalText,
+                onValueChange = { journalText = it },
+                placeholder = { Text("Type your thoughts...") },
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.fillMaxWidth().height(140.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White.copy(0.6f),
+                    cursorColor = Color.White
+                )
+            )
+
+            Spacer(Modifier.height(15.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ElevatedButton(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(containerColor = CoralAccent)) {
+                    Icon(Icons.Default.Mic, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Voice Note", color = Color.White)
+                }
+                ElevatedButton(onClick = {}, shape = RoundedCornerShape(25.dp), colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)) {
+                    Icon(Icons.Default.Send, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Analyze Mood", color = Color.White)
+                }
+            }
+
+            Spacer(Modifier.height(25.dp))
+
+            Crossfade(targetState = detectedMood != null) { show ->
+                if (show) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(10.dp).clickable {},
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.15f))
+                    ) {
+                        Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Result Available!! Click to continue", color = Color.White)
+                        }
+                    }
+                } else if (isLoading) {
+                    CircularProgressIndicator(color = Color.White)
+                }
+            }
+
+            Spacer(Modifier.height(40.dp))
+
+            OutlinedButton(onClick = {}, shape = RoundedCornerShape(25.dp)) {
+                Text("View History")
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Home Screen - With Text")
+@Composable
+fun HomeScreenPreviewWithText() {
+    var journalText by remember { mutableStateOf("Today was a really good day, I feel energized and happy!") }
+    var isLoading by remember { mutableStateOf(false) }
+    var detectedMood by remember { mutableStateOf(null) }
+
+    HomeScreenPreview() // Reuse the same UI with filled text
+}
+
+@Preview(showBackground = true, name = "Home Screen - Result Ready")
+@Composable
+fun HomeScreenPreviewResult() {
+    var journalText by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var detectedMood by remember { mutableStateOf("happy") }
+
+    HomeScreenPreview()
+}
