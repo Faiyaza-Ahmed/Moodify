@@ -5,13 +5,15 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import java.util.*
 
 object NotificationUtils {
 
+    private const val HOUR_OF_DAY = 17
+    private const val MINUTE = 20
+
     fun scheduleDailyReminder(context: Context) {
-
-
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -26,7 +28,6 @@ object NotificationUtils {
         }
 
         val intent = Intent(context, NotificationReceiver::class.java)
-
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             0,
@@ -36,21 +37,31 @@ object NotificationUtils {
 
         val calendar = Calendar.getInstance().apply {
             timeInMillis = System.currentTimeMillis()
-            set(Calendar.HOUR_OF_DAY, 16)
-            set(Calendar.MINUTE, 33)
+            set(Calendar.HOUR_OF_DAY, HOUR_OF_DAY)
+            set(Calendar.MINUTE, MINUTE)
             set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
 
             if (before(Calendar.getInstance())) {
                 add(Calendar.DAY_OF_MONTH, 1)
             }
         }
 
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        } else {
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
+        }
+
+        Log.d("Moodify", "Alarm scheduled for ${calendar.time}")
     }
 
     fun cancelDailyReminder(context: Context) {
@@ -63,5 +74,6 @@ object NotificationUtils {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager.cancel(pendingIntent)
+        Log.d("Moodify", "Alarm canceled")
     }
 }

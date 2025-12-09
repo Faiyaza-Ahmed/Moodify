@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import uk.ac.tees.mad.moodify.R
@@ -15,6 +16,8 @@ import uk.ac.tees.mad.moodify.MainActivity
 class NotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
+        Log.d("Moodify", "Receiver triggered, building notification")
+
         val channelId = "moodify_daily_reminder"
         val channelName = "Daily Mood Reminder"
 
@@ -50,5 +53,8 @@ class NotificationReceiver : BroadcastReceiver() {
             .build()
 
         NotificationManagerCompat.from(context).notify(1001, notification)
+        Log.d("Moodify", "Notification sent")
+
+        NotificationUtils.scheduleDailyReminder(context)
     }
 }

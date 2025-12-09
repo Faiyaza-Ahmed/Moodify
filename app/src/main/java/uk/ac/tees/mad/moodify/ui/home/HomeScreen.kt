@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -33,6 +31,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.moodify.ui.theme.*
 import uk.ac.tees.mad.moodify.utils.NotificationUtils
+import uk.ac.tees.mad.moodify.utils.PreferenceHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,14 +47,22 @@ fun HomeScreen(
     var journalText by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var detectedMood by remember { mutableStateOf<String?>(null) }
-    var notificationsEnabled by remember { mutableStateOf(false) }
+    var notificationsEnabled by remember { mutableStateOf(PreferenceHelper.isReminderEnabled(context)) }
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (!granted) {
+            Toast.makeText(context, "Notification permission denied.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // 🎙️ Speech input setup
     val speechLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val spokenText =
-                result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
+            val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
             spokenText?.let {
                 journalText = journalText + if (journalText.isNotEmpty()) " $it" else it
             }
@@ -67,10 +74,7 @@ fun HomeScreen(
         onResult = { granted ->
             if (granted) {
                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                    putExtra(
-                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-                    )
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                     putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak your mood...")
                 }
                 speechLauncher.launch(intent)
@@ -80,20 +84,10 @@ fun HomeScreen(
         }
     )
 
-    val notificationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (!granted) {
-            Toast.makeText(context, "Notification permission denied. Reminder may not appear.", Toast.LENGTH_LONG).show()
-        }
-    }
-
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = {
-                    Text("Moodify", fontWeight = FontWeight.Bold, fontSize = 22.sp)
-                },
+                title = { Text("Moodify", fontWeight = FontWeight.Bold, fontSize = 22.sp) },
                 actions = {
                     IconButton(onClick = { onNavigateToProfile() }) {
                         Icon(Icons.Default.Settings, contentDescription = "Profile", tint = Color.White)
@@ -116,7 +110,6 @@ fun HomeScreen(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Text(
                 "How are you feeling today?",
                 fontWeight = FontWeight.Bold,
@@ -133,8 +126,7 @@ fun HomeScreen(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(140.dp)
-                    .background(Color.White.copy(alpha = 0.15f)),
+                    .height(140.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
                     focusedBorderColor = Color.White,
@@ -199,9 +191,11 @@ fun HomeScreen(
                     checked = notificationsEnabled,
                     onCheckedChange = { enabled ->
                         notificationsEnabled = enabled
+                        PreferenceHelper.setReminderEnabled(context, enabled)
+
                         if (enabled) {
                             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             }
                             NotificationUtils.scheduleDailyReminder(context)
                             Toast.makeText(context, "Daily reminder enabled!", Toast.LENGTH_SHORT).show()
@@ -232,8 +226,7 @@ fun HomeScreen(
                                     detectedMood = null
                                 },
                             shape = RoundedCornerShape(25.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.2f)),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.2f))
                         ) {
                             Column(
                                 modifier = Modifier
@@ -241,23 +234,13 @@ fun HomeScreen(
                                     .fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    "Your Mood Seems:",
-                                    color = Color.White,
-                                    fontWeight = FontWeight.SemiBold
-                                )
+                                Text("Your Mood Seems:", color = Color.White, fontWeight = FontWeight.SemiBold)
                                 Spacer(Modifier.height(10.dp))
                                 Text(
                                     text = detectedMood?.replaceFirstChar { it.uppercase() } ?: "",
                                     color = CoralAccent,
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Bold
-                                )
-                                Spacer(Modifier.height(5.dp))
-                                Text(
-                                    "Tap to view playlists & activities →",
-                                    color = Color.White.copy(alpha = 0.8f),
-                                    fontSize = 14.sp
                                 )
                             }
                         }
@@ -270,7 +253,6 @@ fun HomeScreen(
             OutlinedButton(
                 onClick = onNavigateToHistory,
                 shape = RoundedCornerShape(25.dp),
-                border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
             ) {
                 Text("View History")
