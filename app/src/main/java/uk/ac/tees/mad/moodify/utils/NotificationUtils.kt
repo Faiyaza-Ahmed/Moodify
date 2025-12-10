@@ -10,8 +10,8 @@ import java.util.*
 
 object NotificationUtils {
 
-    private const val HOUR_OF_DAY = 17
-    private const val MINUTE = 20
+    private const val HOUR_OF_DAY = 21
+    private const val MINUTE = 0
 
     fun scheduleDailyReminder(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

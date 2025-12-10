@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import uk.ac.tees.mad.moodify.MoodifyNavigation
 import uk.ac.tees.mad.moodify.ui.theme.*
 import uk.ac.tees.mad.moodify.utils.NotificationUtils
 import uk.ac.tees.mad.moodify.utils.PreferenceHelper
@@ -253,7 +254,7 @@ fun HomeScreen(
             OutlinedButton(
                 onClick = onNavigateToHistory,
                 shape = RoundedCornerShape(25.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
             ) {
                 Text("View History")
             }

@@ -15,7 +15,9 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import uk.ac.tees.mad.moodify.ui.auth.AuthScreen
 import uk.ac.tees.mad.moodify.ui.auth.AuthViewModel
+import uk.ac.tees.mad.moodify.ui.history.HistoryScreen
 import uk.ac.tees.mad.moodify.ui.home.HomeScreen
+import uk.ac.tees.mad.moodify.ui.profile.ProfileScreen
 import uk.ac.tees.mad.moodify.ui.result.ResultScreen
 import uk.ac.tees.mad.moodify.ui.theme.MoodifyTheme
 import uk.ac.tees.mad.moodify.ui.splash.SplashScreen
@@ -42,6 +44,8 @@ sealed class MoodifyNavigation(val destination : String){
     object Result : MoodifyNavigation("result/{mood}"){
         fun createRoute(mood: String) = "result/$mood"
     }
+    object History : MoodifyNavigation("history")
+    object Profile : MoodifyNavigation("profile")
 }
 
 @Composable
@@ -68,10 +72,10 @@ fun Moodify() {
             HomeScreen(
                 navController = navController,
                 onNavigateToHistory = {
-
+                    navController.navigate(MoodifyNavigation.History.destination)
                 },
                 onNavigateToProfile = {
-
+                    navController.navigate(MoodifyNavigation.Profile.destination)
                 }
             )
         }
@@ -82,6 +86,14 @@ fun Moodify() {
 
                 }
             }
+        }
+
+        composable(MoodifyNavigation.History.destination) {
+            HistoryScreen()
+        }
+
+        composable(MoodifyNavigation.Profile.destination) {
+            ProfileScreen()
         }
     }
 }
