@@ -82,9 +82,9 @@ fun Moodify() {
         composable(MoodifyNavigation.Result.destination) { backStackEntry ->
             val mood = backStackEntry.arguments?.getString("mood")
             if (mood != null) {
-                ResultScreen(mood = mood!!) {
-
-                }
+                ResultScreen(mood = mood!!, onBackToHome = {
+                    navController.popBackStack()
+                })
             }
         }
 
@@ -93,7 +93,7 @@ fun Moodify() {
         }
 
         composable(MoodifyNavigation.Profile.destination) {
-            ProfileScreen()
+            ProfileScreen(navController = navController)
         }
     }
 }

@@ -11,6 +11,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.SelfImprovement
@@ -43,7 +45,7 @@ fun ResultScreen(
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(mood) {
-        mood?.let {
+        mood.let {
             val spotifyUrl = viewModel.fetchSpotifyPlaylist(it)
             val activity = viewModel.suggestActivity(it)
             playlistUrl = spotifyUrl
@@ -53,15 +55,25 @@ fun ResultScreen(
     }
 
     Scaffold(
-        containerColor = LavenderMist,
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text("Your Mood Result", color = TextPrimary, fontWeight = FontWeight.Bold)
+            TopAppBar(
+                title = { Text("Result", fontWeight = FontWeight.Bold, fontSize = 22.sp, color = Color.White) },
+                navigationIcon = {
+                    IconButton(onClick = onBackToHome) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PurplePrimary.copy(alpha = 0.9f),
+                    titleContentColor = Color.White
+                )
             )
-        }
+        },
+        containerColor = LavenderMist
     ) { padding ->
 
         Box(

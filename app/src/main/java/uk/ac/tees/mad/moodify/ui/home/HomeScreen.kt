@@ -58,7 +58,6 @@ fun HomeScreen(
         }
     }
 
-    // 🎙️ Speech input setup
     val speechLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -198,6 +197,7 @@ fun HomeScreen(
                             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             }
+                            NotificationUtils.requestIgnoreBatteryOptimizations(context)
                             NotificationUtils.scheduleDailyReminder(context)
                             Toast.makeText(context, "Daily reminder enabled!", Toast.LENGTH_SHORT).show()
                         } else {

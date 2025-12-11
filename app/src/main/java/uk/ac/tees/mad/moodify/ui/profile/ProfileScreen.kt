@@ -2,13 +2,36 @@ package uk.ac.tees.mad.moodify.ui.profile
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -26,14 +49,20 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import uk.ac.tees.mad.moodify.MoodifyNavigation
 import uk.ac.tees.mad.moodify.ui.history.HistoryViewModel
-import uk.ac.tees.mad.moodify.ui.theme.*
+import uk.ac.tees.mad.moodify.ui.theme.CoralAccent
+import uk.ac.tees.mad.moodify.ui.theme.GradientEnd
+import uk.ac.tees.mad.moodify.ui.theme.GradientStart
+import uk.ac.tees.mad.moodify.ui.theme.LavenderMist
+import uk.ac.tees.mad.moodify.ui.theme.PurplePrimary
+import uk.ac.tees.mad.moodify.ui.theme.SkyBlue
+import uk.ac.tees.mad.moodify.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     historyViewModel: HistoryViewModel = hiltViewModel(),
-    navController: NavController? = null
+    navController: NavController
 ) {
     val name by viewModel.userName.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -172,7 +201,7 @@ fun ProfileScreen(
             OutlinedButton(
                 onClick = {
                     viewModel.logOut()
-                    navController?.navigate( MoodifyNavigation.Auth.destination) {
+                    navController.navigate( MoodifyNavigation.Auth.destination) {
                         popUpTo(0)
                     }
                 },

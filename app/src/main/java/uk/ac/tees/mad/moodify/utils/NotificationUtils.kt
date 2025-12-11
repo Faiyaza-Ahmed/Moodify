@@ -5,7 +5,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import java.util.*
 
 object NotificationUtils {
@@ -18,7 +20,8 @@ object NotificationUtils {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (!alarmManager.canScheduleExactAlarms()) {
-                val intent = Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                Toast.makeText(context, "Please grant exact alarm permission in settings.", Toast.LENGTH_LONG).show()
+                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
                     data = android.net.Uri.parse("package:${context.packageName}")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
@@ -42,11 +45,12 @@ object NotificationUtils {
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
 
-            if (before(Calendar.getInstance())) {
+            if (timeInMillis <= System.currentTimeMillis()) {
                 add(Calendar.DAY_OF_MONTH, 1)
             }
         }
 
+        // Use exact alarm
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
@@ -62,6 +66,7 @@ object NotificationUtils {
         }
 
         Log.d("Moodify", "Alarm scheduled for ${calendar.time}")
+        Toast.makeText(context, "Reminder scheduled for ${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}", Toast.LENGTH_SHORT).show()  // For debugging
     }
 
     fun cancelDailyReminder(context: Context) {
@@ -75,5 +80,20 @@ object NotificationUtils {
         )
         alarmManager.cancel(pendingIntent)
         Log.d("Moodify", "Alarm canceled")
+        Toast.makeText(context, "Reminder canceled", Toast.LENGTH_SHORT).show()
+    }
+
+    // New: Request to ignore battery optimizations
+    fun requestIgnoreBatteryOptimizations(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
+            if (!powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
+                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = android.net.Uri.parse("package:${context.packageName}")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+            }
+        }
     }
 }
