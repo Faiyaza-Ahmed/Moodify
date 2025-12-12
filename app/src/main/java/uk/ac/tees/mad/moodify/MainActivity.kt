@@ -89,7 +89,9 @@ fun Moodify() {
         }
 
         composable(MoodifyNavigation.History.destination) {
-            HistoryScreen()
+            HistoryScreen(
+                navController = navController
+            )
         }
 
         composable(MoodifyNavigation.Profile.destination) {

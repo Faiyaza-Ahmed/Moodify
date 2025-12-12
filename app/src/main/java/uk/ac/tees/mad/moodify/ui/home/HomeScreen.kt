@@ -44,7 +44,14 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val possibleHeaders = listOf(
+        "How are you feeling today?",
+        "What's your mood like right now?",
+        "Tell me about your day!"
+    )
 
+    val headerIndex by remember { mutableStateOf(possibleHeaders.indices.random()) }
+    val headerText = possibleHeaders[headerIndex]
     var journalText by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var detectedMood by remember { mutableStateOf<String?>(null) }
@@ -111,7 +118,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "How are you feeling today?",
+                headerText,
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Color.White
@@ -242,6 +249,12 @@ fun HomeScreen(
                                     color = CoralAccent,
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.height(10.dp))
+                                Text(
+                                    text = "Click here to check more details",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Thin
                                 )
                             }
                         }

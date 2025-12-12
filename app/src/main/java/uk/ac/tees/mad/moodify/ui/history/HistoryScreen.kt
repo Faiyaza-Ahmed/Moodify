@@ -2,6 +2,7 @@ package uk.ac.tees.mad.moodify.ui.history
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import uk.ac.tees.mad.moodify.data.local.MoodEntries
 import uk.ac.tees.mad.moodify.ui.theme.*
 import java.text.SimpleDateFormat
@@ -28,6 +30,7 @@ import java.util.*
 @Composable
 fun HistoryScreen(
     modifier: Modifier = Modifier,
+    navController: NavController,
     viewModel : HistoryViewModel = hiltViewModel(),
 ) {
     var selectedFilter by remember { mutableStateOf("All") }
@@ -109,7 +112,7 @@ fun HistoryScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(filteredList) { entry ->
-                        MoodEntryCard(entry = entry)
+                        MoodEntryCard(entry = entry, navController)
                     }
                     item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
@@ -153,7 +156,7 @@ fun FilterChipsRow(
 }
 
 @Composable
-fun MoodEntryCard(entry: MoodEntries) {
+fun MoodEntryCard(entry: MoodEntries, navController: NavController) {
     val moodEmoji = when (entry.mood.lowercase(Locale.getDefault())) {
         "happy", "positive" -> "😊"
         "sad", "negative" -> "😢"
@@ -170,7 +173,10 @@ fun MoodEntryCard(entry: MoodEntries) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp)),
+            .clip(RoundedCornerShape(16.dp))
+            .clickable {
+                navController.navigate("result/${entry.mood}")
+            },
         colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.06f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {

@@ -43,7 +43,7 @@ android {
 }
 
 dependencies {
-
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
     implementation("com.google.guava:guava:31.1-android")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
